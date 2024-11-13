@@ -44,9 +44,8 @@ export default defineComponent({
     const { menuOption } = toRefs(props)
     const router = useRouter()
     const navTo = (key) => {
-      console.log(key)
       ctx.emit('selectOption', key)
-      router.push('/dashboard/profile/')
+      router.push(`/dashboard/${key}/`)
     }
     return {
       activeKey: ref<string | null>(null),

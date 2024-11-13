@@ -6,7 +6,7 @@ import type { MenuOption } from 'naive-ui'
 const menuOptions: MenuOption[] = [
   {
     label: '且听风吟',
-    key: 'hear-the-wind-sing',
+    key: 'profile',
   },
   {
     label: '1973年的弹珠玩具',
@@ -14,7 +14,7 @@ const menuOptions: MenuOption[] = [
     children: [
       {
         label: '鼠',
-        key: 'rat',
+        key: 'posts',
       },
     ],
   },
