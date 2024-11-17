@@ -15,4 +15,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  optimizeDeps: {
+    include: ['pinia'],
+    esbuildOptions: {
+      // 传递给 esbuild 的选项
+      loader: {
+        '.ts': 'ts',
+        '.tsx': 'tsx'
+      }
+    }
+  }
 })
