@@ -22,7 +22,7 @@
     <div id="fullback">
       <div id="playbox">
         <div id="videobox">
-          <video ref="myVideo" src="../../11.mp4" width="600" height="600"></video>
+          <video ref="myVideo" src="../../../11.mp4" width="600" height="600"></video>
         </div>
         <div id="progress">
           <div id="now"></div>
