@@ -9,10 +9,10 @@
     </div>
     
     <!-- 展示区 -->
-    <div v-show="currentMode === 'masonry'">
+    <div v-if="currentMode === 'masonry'">
       <MasonryGallery :photos="photos" @click-photo="handlePhotoClick" />
     </div>
-    <div v-show="currentMode === 'carousel'">
+    <div v-else-if="currentMode === 'carousel'">
       <ThreeDCarousel :photos="photos" @click-photo="handlePhotoClick" />
     </div>
 
