@@ -1,77 +1,5 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import CHeader from './components/header.vue'
-import SideBar from './views/SideBar.vue'
-import type { MenuOption } from 'naive-ui'
-const menuOptions: MenuOption[] = [
-  {
-    label: '且听风吟',
-    key: 'profile',
-  },
-  {
-    label: '1973年的弹珠玩具',
-    key: 'pinball-1973',
-    children: [
-      {
-        label: '鼠',
-        key: 'posts',
-      },
-    ],
-  },
-  {
-    label: '寻羊冒险记',
-    key: 'a-wild-sheep-chase',
-  },
-  {
-    label: '舞，舞，舞',
-    key: 'dance-dance-dance',
-    children: [
-      {
-        type: 'group',
-        label: '人物',
-        key: 'people',
-        children: [
-          {
-            label: '叙事者',
-            key: 'narrator',
-          },
-          {
-            label: '羊男',
-            key: 'sheep-man',
-          },
-        ],
-      },
-      {
-        label: '饮品',
-        key: 'beverage',
-        children: [
-          {
-            label: '威士忌',
-            key: 'whisky',
-          },
-        ],
-      },
-      {
-        label: '食物',
-        key: 'food',
-        children: [
-          {
-            label: '三明治',
-            key: 'sandwich',
-          },
-        ],
-      },
-      {
-        label: '过去增多，未来减少',
-        key: 'the-past-increases-the-future-recedes',
-      },
-    ],
-  },
-]
-
-const handleSelectOption = (key: string) => {
-  console.log('Received key from child:', key)
-}
 </script>
 
 <template>
@@ -80,16 +8,7 @@ const handleSelectOption = (key: string) => {
       <n-notification-provider>
         <n-modal-provider>
           <n-dialog-provider>
-            <header style="grid-area: header">
-              <CHeader />
-            </header>
-            <aside style="grid-area: sidebar">
-              <SideBar :menuOptions="menuOptions" @select-option="handleSelectOption" />
-            </aside>
-            <main style="grid-area: main">
-              <RouterView />
-            </main>
-            <footer style="grid-area: footer">This is a site footer</footer>
+            <RouterView />
           </n-dialog-provider>
         </n-modal-provider>
       </n-notification-provider>
