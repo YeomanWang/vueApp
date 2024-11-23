@@ -28,13 +28,6 @@ a,
   }
 
   #app {
-    display: grid;
-    grid-template-rows: 50px calc(100vh - 100px) 50px;
-    grid-template-columns: 25% 25% 25% 25%;
-    grid-template-areas:
-      'header header header header'
-      'sidebar main main main '
-      'footer footer footer footer';
-    padding: 0 2rem;
+
   }
 }
