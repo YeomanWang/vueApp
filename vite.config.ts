@@ -15,6 +15,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    port: 3006,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000', // 后端地址
+        changeOrigin: true,
+        secure: false
+      },
+    },
+  },
   optimizeDeps: {
     include: ['pinia'],
     esbuildOptions: {

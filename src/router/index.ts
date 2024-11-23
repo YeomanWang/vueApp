@@ -1,30 +1,46 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useCounterStore } from '../stores/counter';
-import HomeView from '../views/HomeView.vue'
-import VideoView from '../views/VideoView.vue'
-import sheepView from '../views/sheepView.vue'
 import othersView from '../views/othersView.vue'
 
+const LoginPage = () => import('../views/auth/LoginPage.vue');
+const RegisterPage = () => import('../views/auth/RegisterPage.vue');
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      name: 'layout',  // 修改为新的组件名
+      component: import('../views/LayoutView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/dashboard',
       name: 'dashboard',
+      meta: { requiresAuth: true },
       children: [
         {
           path: 'profile',
-          component: HomeView,
+          component: () =>import('../views/dashboard/HomeView.vue'),
         },
         {
           path: 'posts',
-          component: VideoView,
+          component: () => import('../views/dashboard/VideoView.vue'),
         },
         {
           path: 'a-wild-sheep-chase',
-          component: sheepView
+          component: () => import('../views/dashboard/sheepView.vue')
         }
-      ]
+      ],
+      
+    },
+    {
+      path: '/login',
+      name: 'LoginPage',  // 修改为新的组件名
+      component: LoginPage,
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: RegisterPage,
     },
     {
       path: '/personal',
@@ -33,11 +49,13 @@ const router = createRouter({
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/others',
       name: 'others',
       component: othersView,
+      meta: { requiresAuth: true },
     },
     // { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     // // 将匹配以 `/user-` 开头的所有内容，并将其放在 `route.params.afterUser` 下
@@ -45,12 +63,17 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from, next) => {
   // ✅ This will work because the router starts its navigation after
   // the router is installed and pinia will be installed too
-  const store = useCounterStore()
-
-  if (to.meta.requiresAuth && !store) return '/login'
+  const isAuthenticated = localStorage.getItem('auth_token');
+  console.log('Is authenticated:', isAuthenticated);
+  console.log(to.meta);
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    next();
+  }
 })
 
 export default router

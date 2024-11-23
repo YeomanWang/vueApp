@@ -35,22 +35,23 @@ import { useRouter } from 'vue-router'
 export default defineComponent({
   props: {
     menuOptions: {
-      type: Array,
+      type: Array<object>,
       default: () => [], // 设置默认值为空数组
     },
   },
   emits: ['selectOption'],
   setup(props, ctx) {
-    const { menuOption } = toRefs(props)
+    const menuOptionRef  = toRefs(props)
+    console.log(menuOptionRef);
     const router = useRouter()
-    const navTo = (key) => {
+    const navTo = (key: string | null) => {
       ctx.emit('selectOption', key)
       router.push(`/dashboard/${key}/`)
     }
     return {
       activeKey: ref<string | null>(null),
       collapsed: ref(true),
-      menuOption,
+      menuOptionRef,
       navTo,
     }
   },

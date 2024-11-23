@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { toRefs } from 'vue';
-  import { useCounterStore } from '../stores/counter';
+  import { useCounterStore } from '../../stores/counter';
     const store = useCounterStore();
     // const count = store.count;
     // const doubleCount = store.doubleCount;
