@@ -42,11 +42,7 @@ onMounted(() => {})
     <aside>
       <SideBar :menuOptions="menuOptions" @select-option="handleSelectOption" />
     </aside>
-<<<<<<< HEAD
     <main style="width:100%; overflow-y: auto; padding: 2rem;">
-=======
-    <main style="width:100%; overflow-y: auto;">
->>>>>>> f9b8c84 (feat(yeoman): add login register page)
       <RouterView />
     </main>
   </div>
