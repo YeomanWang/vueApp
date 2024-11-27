@@ -26,7 +26,7 @@ onMounted(() => {})
     <aside>
       <SideBar :menuOptions="menuOptions" @select-option="handleSelectOption" />
     </aside>
-    <main style="width:100%; overflow-y: auto;">
+    <main style="width:100%; overflow-y: auto; padding: 2rem;">
       <RouterView />
     </main>
   </div>

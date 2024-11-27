@@ -57,6 +57,8 @@
   
   .carousel-item {
     position: absolute;
+    top: 30%;
+    left: 30%;
     width: 200px;
     height: 150px;
     transform-style: preserve-3d;

@@ -9,15 +9,15 @@
     </div>
     
     <!-- 展示区 -->
-    <div v-if="currentMode === 'masonry'">
+    <div v-show="currentMode === 'masonry'">
       <MasonryGallery :photos="photos" @click-photo="handlePhotoClick" />
     </div>
-    <div v-else-if="currentMode === 'carousel'">
+    <div v-show="currentMode === 'carousel'">
       <ThreeDCarousel :photos="photos" @click-photo="handlePhotoClick" />
     </div>
 
     <!-- 图片放大模态框 -->
-    <div v-if="selectedPhoto" class="modal" @click="closeModal">
+    <div v-show="selectedPhoto" class="modal" @click="closeModal">
       <img class="modal-image" :src="selectedPhoto" alt="Enlarged Photo" />
     </div>
   </div>
