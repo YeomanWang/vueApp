@@ -1,7 +1,6 @@
 <template>
   <n-space vertical>
-    <n-switch v-model:value="collapsed" />
-    <n-layout has-sider>
+    <!-- <n-layout has-sider>
       <n-layout-sider
         bordered
         collapse-mode="width"
@@ -12,19 +11,18 @@
         @collapse="collapsed = true"
         @expand="collapsed = false"
       >
-        <n-menu
-          v-model:value="activeKey"
-          @update:value="navTo(activeKey)"
-          :collapsed="collapsed"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-        />
+ 
       </n-layout-sider>
       <n-layout>
         <span>&nbsp; &nbsp;</span>
-      </n-layout>
-    </n-layout>
+      </n-layout> 
+    </n-layout>-->
+    <n-menu
+      v-model:value="activeKey"
+      @update:value="navTo(activeKey)"
+      :collapsed-icon-size="22"
+      :options="menuOptions"
+    />
   </n-space>
 </template>
 

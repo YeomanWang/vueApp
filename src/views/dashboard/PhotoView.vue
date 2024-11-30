@@ -40,6 +40,11 @@ const photos = ref([
   photo3Src,
   photo4Src,
   photo5Src,
+  photo1Src,
+  photo2Src,
+  photo3Src,
+  photo4Src,
+  photo5Src,
 ]);
 const selectedPhoto = ref<string | null>(null);
 
