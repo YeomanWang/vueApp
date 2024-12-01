@@ -1,37 +1,66 @@
 <template>
-    <div class="carousel">
-      <div class="carousel-container" :style="{ transform: `rotateY(${angle}deg)` }">
-        <div
-          v-for="(photo, index) in photos"
-          :key="index"
-          class="carousel-item"
-          :style="{ transform: `rotateY(${index * 360 / photos.length}deg) translateZ(300px)` }"
-          @click="emitClick(photo)"
-        >
-          <img :src="photo" alt="Photo" />
+    <div class="carousel-wrapper">
+      <div v-for="(photoGroup, groupIndex) in groupedPhotos" :key="groupIndex" class="carousel">
+        <div class="carousel-container" :style="{ transform: `rotateY(${angles[groupIndex]}deg)` }">
+          <div
+            v-for="(photo, index) in photoGroup"
+            :key="index"
+            class="carousel-item"
+            :style="{ transform: `rotateY(${index * 360 / photoGroup.length}deg) translateZ(300px)` }"
+            @click="emitClick(photo)"
+          >
+            <img :src="photo" alt="Photo" />
+          </div>
         </div>
-      </div>
-      <div class="controls">
-        <button @click="rotate(-1)">&#9664;</button>
-        <button @click="rotate(1)">&#9654;</button>
+        <div class="controls">
+          <button @click="rotate(groupIndex, -1)">&#9664;</button>
+          <button @click="rotate(groupIndex, 1)">&#9654;</button>
+        </div>
       </div>
     </div>
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
-  import { defineProps, defineEmits } from 'vue';
+  import { ref, computed, defineProps, defineEmits, watch} from 'vue';
   
   const props = defineProps({
-    photos: Array as () => string[],
+    photos: Array as () => string[], // 图片数组
   });
   
   const emit = defineEmits(['click-photo']);
-  const angle = ref(0);
   
-  const rotate = (direction: number) => {
-    angle.value += direction * (360 / props.photos.length);
+  // 分组图片，每组最多5张
+  const groupedPhotos = computed(() => {
+    const groups: string[][] = [];
+    for (let i = 0; i < props.photos.length; i += 5) {
+      const group = props.photos.slice(i, i + 5);
+      if (group.length > 0) {
+        groups.push(group);
+      }
+    }
+    return groups;
+  });
+  
+  // 每个轮播图的旋转角度
+  const angles = ref(groupedPhotos.value.map(() => 0));
+  
+  const rotate = (groupIndex: number, direction: number) => {
+    const group = groupedPhotos.value[groupIndex];
+    if (group && group.length > 0) {
+      angles.value[groupIndex] += direction * (360 / group.length);
+    } else {
+      console.warn(`Group ${groupIndex} is empty or invalid.`);
+    }
+    // angles.value[groupIndex] += direction * (360 / groupedPhotos.value[groupIndex].length);
   };
+
+  watch(
+    () => groupedPhotos.value,
+    (newGroups) => {
+      angles.value = newGroups.map(() => 0); // 保证每组有一个初始角度
+    },
+    { immediate: true }
+  );
   
   const emitClick = (photo: string) => {
     emit('click-photo', photo);
@@ -39,6 +68,12 @@
   </script>
   
   <style scoped>
+  .carousel-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+  }
+  
   .carousel {
     perspective: 1000px;
     position: relative;

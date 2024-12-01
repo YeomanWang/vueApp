@@ -10,7 +10,7 @@
     
     <!-- 展示区 -->
     <div v-show="currentMode === 'masonry'">
-      <MasonryGallery :photos="photos" @click-photo="handlePhotoClick" />
+      <MasonryGallery ref="masonryGallery" :photos="photos" @click-photo="handlePhotoClick" @load-more="handleLoadMorePhotos"/>
     </div>
     <div v-show="currentMode === 'carousel'">
       <ThreeDCarousel :photos="photos" @click-photo="handlePhotoClick" />
@@ -34,24 +34,33 @@ import photo3Src from '../../assets/3.jpg';
 import photo4Src from '../../assets/4.jpg';
 import photo5Src from '../../assets/5.jpg';
 const currentMode = ref('masonry'); // 当前展示模式
-const photos = ref([
-  photo1Src,
-  photo2Src,
-  photo3Src,
-  photo4Src,
-  photo5Src,
-  photo1Src,
-  photo2Src,
-  photo3Src,
-  photo4Src,
-  photo5Src,
-]);
+const photos = ref([]);
 const selectedPhoto = ref<string | null>(null);
-
+const masonryGallery = ref();
 // 点击图片放大
 const handlePhotoClick = (photo: string) => {
   selectedPhoto.value = photo;
 };
+
+const handleLoadMorePhotos = () => {
+  return new Promise<string[]>((resolve) => {
+    setTimeout(() => {
+      const newPhotos = [
+        photo1Src,
+        photo2Src,
+        photo3Src,
+        photo4Src,
+        photo5Src,
+      ];
+      photos.value.push(...newPhotos);
+      resolve(newPhotos);
+    }, 1000);
+  }).then((newPhotos) => {
+    if (masonryGallery.value) {
+      masonryGallery.value.updatePhotos(newPhotos);
+    }
+  });
+}
 
 // 关闭模态框
 const closeModal = () => {
