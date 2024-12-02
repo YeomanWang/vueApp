@@ -32,6 +32,7 @@
   // 分组图片，每组最多5张
   const groupedPhotos = computed(() => {
     const groups: string[][] = [];
+    if(!props.photos) return;
     for (let i = 0; i < props.photos.length; i += 5) {
       const group = props.photos.slice(i, i + 5);
       if (group.length > 0) {
@@ -42,11 +43,12 @@
   });
   
   // 每个轮播图的旋转角度
-  const angles = ref(groupedPhotos.value.map(() => 0));
+  const angles = ref(groupedPhotos.value?.map(() => 0));
   
   const rotate = (groupIndex: number, direction: number) => {
+    if(!groupedPhotos.value) return;
     const group = groupedPhotos.value[groupIndex];
-    if (group && group.length > 0) {
+    if (group && group.length > 0 && angles.value) {
       angles.value[groupIndex] += direction * (360 / group.length);
     } else {
       console.warn(`Group ${groupIndex} is empty or invalid.`);
@@ -57,6 +59,7 @@
   watch(
     () => groupedPhotos.value,
     (newGroups) => {
+      if(!newGroups) return;
       angles.value = newGroups.map(() => 0); // 保证每组有一个初始角度
     },
     { immediate: true }

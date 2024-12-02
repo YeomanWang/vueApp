@@ -38,4 +38,6 @@ export const useCounterStore = defineStore('counter', {
       this.increment();
     }
   }
-})
+});
+
+

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import CHeader from '../components/header.vue'
+import CHeader from '../components/ChildHeader.vue'
 
 </script>
 
@@ -75,6 +75,7 @@ nav a:first-of-type {
     place-items: center;
     height: 50px;
     box-shadow: 0 -6px 10px 5px rgba(0, 0, 0, 0.5);
+    padding-right: 10px;
   }
 
   .logo {

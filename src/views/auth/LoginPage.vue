@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { NForm, NFormItem, NInput, NButton, NSpace, NCard } from 'naive-ui';
+import { NForm, NFormItem, NInput, NButton, NSpace, NCard, NIcon} from 'naive-ui';
+import { EyeOutline, EyeOffOutline } from '@vicons/ionicons5';
 import axios from 'axios';
+import { useUserStore } from '../../stores/user';
 
 const router = useRouter();
+const userStore = useUserStore();
 const form = ref({
   username: '',
   password: '',
@@ -25,15 +28,23 @@ const rules = {
   ],
 };
 
+const passwordType= ref('password'); // 默认密码类型为 password
+const showPassword = ref(false); // 控制眼睛图标
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+  passwordType.value = showPassword.value ? 'text' : 'password';
+}
+
 const login = async () => {
   try {
     const response = await axios.post('/api/login', form.value);
     if (response.data.success) {
       // 假设后端返回 token
-      localStorage.setItem('auth_token', response.data.token);
+      userStore.login(response.data.user, response.data.token);
       router.push('/');  // 登录成功后跳转到主页面
     } else {
-      alert(response.message);
+      alert(response.data.message);
     }
   } catch (error) {
     console.error('登录错误:', error);
@@ -53,7 +64,17 @@ const login = async () => {
             <n-input v-model:value="form.username" placeholder="请输入用户名" />
           </n-form-item>
           <n-form-item label="密码" path="password">
-            <n-input type="password" v-model:value="form.password" placeholder="请输入密码" />
+            <n-input :type="passwordType" v-model:value="form.password" placeholder="请输入密码" >
+              <template #suffix>
+                <n-icon
+                  :size="20"
+                  @mousedown="togglePasswordVisibility"
+                  @mouseup="togglePasswordVisibility"
+                >
+                  <component :is="showPassword ? EyeOutline : EyeOffOutline" />
+                </n-icon>
+              </template>
+            </n-input>
           </n-form-item>
           <n-form-item>
             <n-button type="primary" native-type="submit" @click="login">登录</n-button>

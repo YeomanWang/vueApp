@@ -95,8 +95,6 @@ router.beforeEach((to, from, next) => {
   // ✅ This will work because the router starts its navigation after
   // the router is installed and pinia will be installed too
   const isAuthenticated = localStorage.getItem('auth_token');
-  console.log('Is authenticated:', isAuthenticated);
-  console.log(to.meta);
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
   } else {
