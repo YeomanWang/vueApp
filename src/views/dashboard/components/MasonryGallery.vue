@@ -12,33 +12,34 @@
 </template>
   
 <script setup lang="ts">
-  import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount} from 'vue';
-  import photo1Src from '../../../assets/1.jpg';
-  import photo2Src from '../../../assets/2.jpg';
-  import photo3Src from '../../../assets/3.jpg';
-  import photo4Src from '../../../assets/4.jpg';
-  import photo5Src from '../../../assets/5.jpg';
+  import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount, defineExpose} from 'vue';
+  // import photo1Src from '../../../assets/1.jpg';
+  // import photo2Src from '../../../assets/2.jpg';
+  // import photo3Src from '../../../assets/3.jpg';
+  // import photo4Src from '../../../assets/4.jpg';
+  // import photo5Src from '../../../assets/5.jpg';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const props = defineProps({
     photos: Array as () => string[],
   });
 
-  // const photosRef = toRefs(props)
-  const loadMorePhotos = () => {
-    return new Promise<string[]>((resolve) => {
-      setTimeout(() => {
-        const newPhotos = [
-          photo1Src,
-          photo2Src,
-          photo3Src,
-          photo4Src,
-          photo5Src,
-          photo1Src,
-        ];
-        resolve(newPhotos);
-      }, 1000);
-    });
-  };
+  const emit = defineEmits(['click-photo', 'load-more']);
+
+  // const loadMorePhotos = () => {
+  //   return new Promise<string[]>((resolve) => {
+  //     setTimeout(() => {
+  //       const newPhotos = [
+  //         photo1Src,
+  //         photo2Src,
+  //         photo3Src,
+  //         photo4Src,
+  //         photo5Src,
+  //         photo1Src,
+  //       ];
+  //       resolve(newPhotos);
+  //     }, 1000);
+  //   });
+  // };
 
   const loading = ref(false);
   const noMore = ref(false);
@@ -49,17 +50,18 @@
   const observer = new IntersectionObserver(async (entries) => {
     if (entries[0].isIntersecting && !loading.value && !noMore.value) {
       loading.value = true;
-      const newPhotos = await loadMorePhotos();
+      // const newPhotos = await loadMorePhotos();
+      emit('load-more');
 
-      if (newPhotos.length === 0) {
-        noMore.value = true;
-      } else {
-        photos.value.push(...newPhotos);
-        visiblePhotos.value = photos.value;
-        // await nextTick(); // 确保新照片已渲染到 DOM
-        // forceMasonryLayout(); // 触发手动布局调整
-      }
-      loading.value = false;
+      // if (newPhotos.length === 0) {
+      //   noMore.value = true;
+      // } else {
+      //   photos.value.push(...newPhotos);
+      //   visiblePhotos.value = photos.value;
+      //   // await nextTick(); // 确保新照片已渲染到 DOM
+      //   // forceMasonryLayout(); // 触发手动布局调整
+      // }
+      // loading.value = false;
     }
   });
 
@@ -73,7 +75,6 @@
   //   }
   // };
 
-  const emit = defineEmits(['click-photo']);
   
   const emitClick = (photo: string) => {
     emit('click-photo', photo);
@@ -90,6 +91,19 @@
       observer.unobserve(sentinel.value);
     }
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const updatePhotos = (newPhotos: string[]) => {
+    if (newPhotos.length === 0) {
+      noMore.value = true;
+    } else {
+      photos.value.push(...newPhotos);
+      visiblePhotos.value = photos.value;
+    }
+    loading.value = false;
+  };
+
+  defineExpose({ updatePhotos });
 </script>
   
 <style scoped>
