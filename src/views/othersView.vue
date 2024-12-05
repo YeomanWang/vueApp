@@ -111,7 +111,6 @@ const uploadPhoto = async () => {
   const formData = new FormData();
   formData.append('age', form.value.age.toString());
   formData.append('userId', localStorage.getItem('userId'));
-  // formData.append('photos', form.value.file);
   form.value.file.forEach((file) => {
     formData.append(`photos`, file.file as File);
   });
