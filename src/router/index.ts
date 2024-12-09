@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import othersView from '../views/othersView.vue'
 
 const LoginPage = () => import('../views/auth/LoginPage.vue');
 const RegisterPage = () => import('../views/auth/RegisterPage.vue');
@@ -50,9 +49,9 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: '/others',
-          name: 'others',
-          component: othersView,
+          path: '/upload',
+          name: 'upload',
+          component: import('../views/UploadView.vue'),
           meta: { requiresAuth: true },
         },
       ]

@@ -1,45 +1,23 @@
 <template>
   <div class="masonry-container">
     <div class="masonry">
-      <div class="masonry-item" v-for="(photo, index) in visiblePhotos" :key="index" @click="emitClick(photo)">
-        <img :src="photo" alt="Photo" />
+      <div class="masonry-item" v-for="(photo, index) in visiblePhotos" :key="index" @click="emitClick(`http://localhost:3000${photo}`)">
+        <img :src="`http://localhost:3000${photo}`" alt="Photo" />
       </div>
     </div>
-    <div class="loading" v-if="true">加载中...</div>
-    <div class="no-more" v-if="noMore">没有新的照片了</div>
+    <div class="loading" v-if="loading">加载中...</div>
+    <div class="no-more" v-if="noMore">没有更多的照片了</div>
     <div ref="sentinel" class="sentinel"></div>
   </div>
 </template>
   
 <script setup lang="ts">
   import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount, defineExpose} from 'vue';
-  // import photo1Src from '../../../assets/1.jpg';
-  // import photo2Src from '../../../assets/2.jpg';
-  // import photo3Src from '../../../assets/3.jpg';
-  // import photo4Src from '../../../assets/4.jpg';
-  // import photo5Src from '../../../assets/5.jpg';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const props = defineProps({
     photos: Array as () => string[],
   });
 
   const emit = defineEmits(['click-photo', 'load-more']);
-
-  // const loadMorePhotos = () => {
-  //   return new Promise<string[]>((resolve) => {
-  //     setTimeout(() => {
-  //       const newPhotos = [
-  //         photo1Src,
-  //         photo2Src,
-  //         photo3Src,
-  //         photo4Src,
-  //         photo5Src,
-  //         photo1Src,
-  //       ];
-  //       resolve(newPhotos);
-  //     }, 1000);
-  //   });
-  // };
 
   const loading = ref(false);
   const noMore = ref(false);
@@ -52,30 +30,9 @@
       loading.value = true;
       // const newPhotos = await loadMorePhotos();
       emit('load-more');
-
-      // if (newPhotos.length === 0) {
-      //   noMore.value = true;
-      // } else {
-      //   photos.value.push(...newPhotos);
-      //   visiblePhotos.value = photos.value;
-      //   // await nextTick(); // 确保新照片已渲染到 DOM
-      //   // forceMasonryLayout(); // 触发手动布局调整
-      // }
-      // loading.value = false;
     }
   });
 
-  // const forceMasonryLayout = () => {
-  //   const masonry = document.querySelector('.masonry');
-  //   if (masonry) {
-  //     masonry.style.columnGap = '1.01rem'; // 触发重绘
-  //     setTimeout(() => {
-  //       masonry.style.columnGap = '1rem'; // 恢复原样
-  //     }, 0);
-  //   }
-  // };
-
-  
   const emitClick = (photo: string) => {
     emit('click-photo', photo);
   };

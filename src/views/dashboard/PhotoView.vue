@@ -28,36 +28,37 @@ import { ref } from 'vue';
 import { NButton, NButtonGroup } from 'naive-ui';
 import MasonryGallery from './components/MasonryGallery.vue';
 import ThreeDCarousel from './components/ThreeDCarousel.vue';
-import photo1Src from '../../assets/1.jpg';
-import photo2Src from '../../assets/2.jpg';
-import photo3Src from '../../assets/3.jpg';
-import photo4Src from '../../assets/4.jpg';
-import photo5Src from '../../assets/5.jpg';
+import apiClient from '../../service';
 const currentMode = ref('masonry'); // 当前展示模式
 const photos = ref([]);
 const selectedPhoto = ref<string | null>(null);
 const masonryGallery = ref();
+const age = ref(0);
+let currentPage = 1;
 // 点击图片放大
 const handlePhotoClick = (photo: string) => {
   selectedPhoto.value = photo;
 };
 
+const fetchPhotos = async(resolve) => {
+  try {
+    const response = await apiClient.get(`/photos/${localStorage.getItem('userId')}/${age.value}?page=${currentPage}&limit=4`); 
+    response.data.map(({photo}) => {
+      photos.value.push(photo);
+    });
+    resolve(response.data);
+    currentPage++;
+  } catch (error) {
+    console.error('获取照片失败:', error);
+  }
+}
+
 const handleLoadMorePhotos = () => {
   return new Promise<string[]>((resolve) => {
-    setTimeout(() => {
-      const newPhotos = [
-        photo1Src,
-        photo2Src,
-        photo3Src,
-        photo4Src,
-        photo5Src,
-      ];
-      photos.value.push(...newPhotos);
-      resolve(newPhotos);
-    }, 1000);
-  }).then((newPhotos) => {
+    fetchPhotos(resolve);
+  }).then((response) => {
     if (masonryGallery.value) {
-      masonryGallery.value.updatePhotos(newPhotos);
+      masonryGallery.value.updatePhotos(response.map(({photo}) => {return photo}));
     }
   });
 }

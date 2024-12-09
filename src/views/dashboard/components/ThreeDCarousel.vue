@@ -7,9 +7,9 @@
             :key="index"
             class="carousel-item"
             :style="{ transform: `rotateY(${index * 360 / photoGroup.length}deg) translateZ(300px)` }"
-            @click="emitClick(photo)"
+            @click="emitClick(`http://localhost:3000${photo}`)"
           >
-            <img :src="photo" alt="Photo" />
+            <img :src="`http://localhost:3000${photo}`" alt="Photo" />
           </div>
         </div>
         <div class="controls">
