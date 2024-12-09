@@ -74,7 +74,7 @@ export default defineComponent({
         },
         {
           label: '上传照片',
-          value: 'others',
+          value: 'upload',
           key: '3',
         },
       ],
