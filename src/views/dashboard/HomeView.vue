@@ -7,16 +7,16 @@ const menuOptions: MenuOption[] = [
   {
     label: '王一一的照片',
     key: 'photos',
-    children: [
-      {
-        label: '叙事者',
-        key: 'narrator',
-      },
-      {
-        label: '羊男',
-        key: 'sheep-man',
-      }
-    ]
+    // children: [
+    //   {
+    //     label: '叙事者',
+    //     key: 'narrator',
+    //   },
+    //   {
+    //     label: '羊男',
+    //     key: 'sheep-man',
+    //   }
+    // ]
   },
   {
     key: 'divider-1',
