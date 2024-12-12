@@ -41,7 +41,7 @@ const login = async () => {
     const response = await axios.post('/api/login', form.value);
     if (response.data.success) {
       // 假设后端返回 token
-      userStore.login(response.data.user, response.data.token);
+      userStore.login(response.data.user, response.data.token, response.data.refreshToken);
       router.push('/');  // 登录成功后跳转到主页面
     } else {
       alert(response.data.message);
