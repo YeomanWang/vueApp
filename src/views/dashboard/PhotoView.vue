@@ -42,7 +42,7 @@ const handlePhotoClick = (photo: string) => {
 
 const fetchPhotos = async(resolve) => {
   try {
-    const response = await apiClient.get(`/photos/${localStorage.getItem('userId')}/${age.value}?page=${currentPage}&limit=4`); 
+    const response = await apiClient.get(`/photos/${localStorage.getItem('userId')}/${age.value}?page=${currentPage}&limit=10`); 
     response.data.map(({photo}) => {
       photos.value.push(photo);
     });
