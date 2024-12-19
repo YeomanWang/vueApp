@@ -10,6 +10,25 @@ const duration = ref(0);
 const volume = ref(1);
 const playbackRate = ref(1);
 const isPlaying = ref(false);
+// 控制栏状态
+const isControlBarVisible = ref(false);
+let hideControlBarTimeout: ReturnType<typeof setTimeout> | null = null;
+
+// 显示控制栏
+const showControlBar = () => {
+  isControlBarVisible.value = true;
+  if (hideControlBarTimeout) clearTimeout(hideControlBarTimeout);
+
+  // 自动隐藏控制栏
+  hideControlBarTimeout = setTimeout(() => {
+    isControlBarVisible.value = false;
+  }, 3000); // 3 秒后自动隐藏
+};
+
+// 隐藏控制栏
+const hideControlBar = () => {
+  isControlBarVisible.value = false;
+};
 
 // 视频事件监听
 onMounted(() => {
@@ -70,12 +89,12 @@ const seekTo = (time: number) => {
 };
 </script>
 <template>
-  <div id="video-container">
+  <div id="video-container" @mousemove="showControlBar" @mouseleave="hideControlBar">
     <!-- 视频播放器 -->
     <video ref="myVideo" src="../../../11.mp4" width="600" height="400"></video>
 
     <!-- 自定义控制栏 -->
-    <div id="control-bar">
+    <div id="control-bar" :class="{ 'show': isControlBarVisible }">
       <!-- 播放/暂停 -->
       <button @click="togglePlay">{{ isPlaying ? '暂停' : '播放' }}</button>
 
@@ -121,21 +140,38 @@ const seekTo = (time: number) => {
   position: relative;
   width: 600px;
   margin: auto;
+  background: black;
+}
+
+video {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 #control-bar {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  margin-top: 10px;
-  padding: 5px;
-  background: #333;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6); /* 半透明背景 */
   color: white;
-  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  opacity: 0; /* 默认隐藏 */
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#control-bar.show {
+  opacity: 1; /* 悬浮显示 */
+  visibility: visible;
 }
 
 button {
-  background: #555;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
   padding: 5px 10px;
@@ -144,15 +180,17 @@ button {
 }
 
 button:hover {
-  background: #777;
+  background: rgba(255, 255, 255, 0.4);
 }
 
-input[type="range"] {
-  width: 100px;
+input[type="range"],
+select {
+  margin: 0 10px;
+  background: none;
+  color: white;
 }
 
 #progress-bar {
   flex-grow: 1;
-  margin: 0 10px;
 }
 </style>

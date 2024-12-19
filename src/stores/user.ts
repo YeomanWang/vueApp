@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { clearTokenTimer } from '../utils/tokenHandle';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -25,6 +26,7 @@ export const useUserStore = defineStore('user', {
       this.refreshToken = '';
       localStorage.removeItem('auth_token');
       localStorage.removeItem('refreshToken');
+      clearTokenTimer();
       const router = useRouter();
       router.push('/login');
     },
