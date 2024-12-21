@@ -7,7 +7,7 @@ const result1 = ref<{ time: number; word: string; id: number; active: boolean }[
 const text = ref<NodeListOf<HTMLElement> | null>(null)
 const container = ref<HTMLElement | null>(null)
 const ul = ref<HTMLElement | null>(null)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 
 const handleTimeUpdate = () => {
   if (testAudio.value) {

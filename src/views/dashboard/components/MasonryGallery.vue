@@ -49,7 +49,7 @@
     }
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const updatePhotos = (newPhotos: string[]) => {
     if (newPhotos.length === 0) {
       noMore.value = true;
