@@ -1,0 +1,41 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # 只在推送到 main 分支时触发工作流
+      - develop # 只在推送到 develop 分支时触发工作流
+  pull_request:
+    branches:
+      - main # 当发起到 main 的 PR 时触发工作流
+      - develop # 当发起到 develop 的 PR 时触发工作流
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 环境
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3 # 拉取代码到 CI 环境
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # 设置 Node.js 版本
+
+    - name: Install dependencies
+      run: npm install # 安装依赖
+
+    - name: Run tests
+      run: npm run test:unit # 运行测试
+
+    - name: Build
+      run: npm run build # 构建生产版本
+
+    # - name: Deploy
+    #   run: |
+    #     npm install -g surge # 安装 Surge 部署工具
+    #     surge --project ./dist --domain your-project-name.surge.sh # 部署到 Surge
+    #   env:
+    #     SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }} # Surge 登录凭证
+    #     SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }} # Surge Token，添加到 GitHub Secrets

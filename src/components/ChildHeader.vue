@@ -52,7 +52,7 @@ export default defineComponent({
         } else {
           message.error(response.data.message);
         }
-      } catch (error) {
+      } catch (error:ContentType) {
         message.error(error);
       }
     }
