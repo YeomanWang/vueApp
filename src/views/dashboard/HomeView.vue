@@ -57,6 +57,70 @@ const handleSelectOption = (key: unknown) => {
   console.log(key);
 }
 
+// 动态获取用户信息（例如从Vuex或API）
+const userName = ref("小明"); // 假设这个是从后端动态获取的用户名
+
+const canvas = ref<HTMLCanvasElement | null>(null);
+const canvasContainer = ref<HTMLElement | null>(null);
+const messageVisible = ref(false);
+
+// 初始化动画
+const drawCanvas = () => {
+  const ctx = canvas.value?.getContext("2d");
+  if (!ctx) return;
+
+  // 设置画布背景
+  ctx.fillStyle = "#ffcc99";
+  ctx.fillRect(0, 0, canvas.value?.width ?? 0, canvas.value?.height ?? 0);
+
+  // 动态显示文字
+  ctx.font = "30px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("欢迎", canvas.value?.width ?? 0 / 2, canvas.value?.height ?? 0 / 2);
+
+  // 向中间滑入的效果
+  let offsetX = -canvas.value.width;
+  const animationDuration = 5000; // 动画持续5秒
+  let startTime = Date.now();
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    if (elapsed < animationDuration) {
+      offsetX = Math.max(-canvas.value.width, (elapsed / animationDuration) * canvas.value.width - canvas.value.width);
+      requestAnimationFrame(animate);
+    } else {
+      // 动画完成后文字居中显示
+      offsetX = 0;
+      messageVisible.value = true;
+      setTimeout(() => {
+        // 5秒后移出
+        messageVisible.value = false;
+        offsetX = -canvas.value.width;
+        startTime = Date.now();
+        requestAnimationFrame(animate);
+      }, 5000); // 延迟5秒后开始移出
+    }
+
+    // 重绘
+    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
+
+    // 绘制文字
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "ffcc99";
+    ctx.textAlign = "center";
+    ctx.fillText(
+      "欢迎 " + userName.value + " 小朋友",
+      (canvas.value.width / 2) + offsetX,
+      canvas.value.height / 2
+    );
+  };
+  animate();
+};
+
+// 在组件挂载时开始绘制动画
+onMounted(() => {
+  drawCanvas();
+});
+
 //add get all ages of the user api
 
 </script>
@@ -70,6 +134,9 @@ const handleSelectOption = (key: unknown) => {
       <div class="music-player" @click="toggleMusic">
         <div :class="['circle', { spinning: isPlaying }]"></div>
       </div>
+      <!-- <div id="canvas-container" ref="canvasContainer">
+        <canvas ref="canvas" width="600" height="400"></canvas>
+      </div> -->
       <RouterView />
     </main>
   </div>
@@ -116,4 +183,25 @@ const handleSelectOption = (key: unknown) => {
   }
 }
 
+#canvas-container {
+  position: relative;
+  width: 600px;
+  height: 400px;
+  margin: auto;
+}
+
+.welcome-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #333;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.welcome-message {
+  opacity: 1;
+}
 </style>

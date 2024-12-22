@@ -28,7 +28,7 @@ const rules = {
   ],
 };
 
-const passwordType= ref('password'); // 默认密码类型为 password
+const passwordType= ref<"password" | "text" | "textarea">('password'); // 默认密码类型为 password
 const showPassword = ref(false); // 控制眼睛图标
 
 const togglePasswordVisibility = () => {

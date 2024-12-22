@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch} from 'vue';
+import apiClient from '../../service';
 
 // 视频元素
 const myVideo = ref<HTMLVideoElement | null>(null);
-
+const videoUrl = ref('');
 // 进度与状态
 const currentTime = ref(0);
 const duration = ref(0);
@@ -33,6 +34,7 @@ const hideControlBar = () => {
 // 视频事件监听
 onMounted(() => {
   if (myVideo.value) {
+    fetchVideos();
     const video = myVideo.value;
     
     // 更新进度
@@ -44,6 +46,23 @@ onMounted(() => {
     // 检测播放状态
     video.addEventListener('play', () => (isPlaying.value = true));
     video.addEventListener('pause', () => (isPlaying.value = false));
+  }
+});
+
+const fetchVideos = async() => {
+  try {
+    const response = await apiClient.get(`/videos/${localStorage.getItem('userId')}`); 
+    response.data.map((video) => {
+      videoUrl.value = `http://localhost:3000/${video.videoPath}`;
+    });
+  } catch (error) {
+    console.error('获取照片失败:', error);
+  }
+}
+
+watch(videoUrl, (newUrl) => {
+  if (myVideo.value) {
+    myVideo.value.src = newUrl;
   }
 });
 
@@ -91,7 +110,7 @@ const seekTo = (time: number) => {
 <template>
   <div id="video-container" @mousemove="showControlBar" @mouseleave="hideControlBar">
     <!-- 视频播放器 -->
-    <video ref="myVideo" src="../../../11.mp4" width="600" height="400"></video>
+    <video ref="myVideo" width="600" height="400"></video>
 
     <!-- 自定义控制栏 -->
     <div id="control-bar" :class="{ 'show': isControlBarVisible }">

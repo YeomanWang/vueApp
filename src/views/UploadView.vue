@@ -83,9 +83,38 @@ const beforeUpload = (file: File) => {
 const handleChange = (files: File[]) => {
   fileList.value = files.fileList;
   form.value.file = files;
+
+  // const chunks = createFileChunks(files[0]);
+  // const worker = new Worker("./worker.js");
+  // worker.postMessage({
+  //   fileChunks: chunks,
+  //   fileName: files[0].name,
+  //   uploadUrl: "/upload-chunk", // 上传接口地址
+  // });
+
+  // let uploadedChunks = 0;
+
+  // worker.onmessage = (event) => {
+  //   const { index, success, complete, error } = event.data;
+
+  //   if (success) {
+  //     uploadedChunks++;
+  //     const percent = Math.round((uploadedChunks / chunks.length) * 100);
+  //     console.log(percent);
+  //     // progress.textContent = `Uploaded: ${percent}%`;
+  //   } else if (error) {
+  //     console.error(`Chunk ${index} upload failed: ${error}`);
+  //     worker.terminate();
+  //   }
+
+  //   if (complete) {
+  //     alert("Upload complete!");
+  //     worker.terminate();
+  //   }
+  // };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const handleRemove = (file: File) => {
   const index = fileList.value.findIndex(item => item.id === file.id); 
   if (index > -1) {
@@ -93,6 +122,19 @@ const handleRemove = (file: File) => {
     form.value.file.splice(index, 1);
   }
 };
+
+// function createFileChunks(file: File, chunkSize = 2 * 1024 * 1024) { // 默认每片2MB
+//   const chunks = [];
+//   let start = 0;
+
+//   while (start < file.size) {
+//     const end = Math.min(file.size, start + chunkSize);
+//     chunks.push(file.slice(start, end));
+//     start = end;
+//   }
+
+//   return chunks;
+// }
 
 const handleSubmit = () => {
   formRef.value
