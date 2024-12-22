@@ -30,8 +30,8 @@ export default defineComponent({
   setup() {
     const message = useMessage()
     const router = useRouter()
-    const userName = ref('User Name')
     const userStore = useUserStore();
+    const userName = ref(userStore.user?.name || 'User');
     const userMenuOptions = [
       { label: 'Logout', key: 'logout' },
     ]
@@ -52,7 +52,7 @@ export default defineComponent({
         } else {
           message.error(response.data.message);
         }
-      } catch (error:ContentType) {
+      } catch (error) {
         message.error(error);
       }
     }
@@ -68,8 +68,8 @@ export default defineComponent({
           key: '1',
         },
         {
-          label: 'personal',
-          value: 'personal',
+          label: '上传视频',
+          value: 'uploadVideo',
           key: '2',
         },
         {
