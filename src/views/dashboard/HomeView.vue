@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import '../../assets/base.css';
 import { onMounted, ref } from 'vue'
 import SideBar from './SideBar.vue'
 import type { MenuOption } from 'naive-ui'
@@ -39,7 +40,7 @@ const menuOptions: MenuOption[] = [
 
 const isPlaying = ref(false);
 const audio = new Audio(audioSrc); 
-
+const active = ref(false);
 const toggleMusic = () => {
   if (isPlaying.value) {
     audio.pause();
@@ -49,80 +50,26 @@ const toggleMusic = () => {
   isPlaying.value = !isPlaying.value;
 };
 
-onMounted(() => {
-  audio.loop = true; 
-})
-
 const handleSelectOption = (key: unknown) => {
   console.log(key);
 }
 
-// 动态获取用户信息（例如从Vuex或API）
-const userName = ref("小明"); // 假设这个是从后端动态获取的用户名
-
-const canvas = ref<HTMLCanvasElement | null>(null);
-const canvasContainer = ref<HTMLElement | null>(null);
-const messageVisible = ref(false);
-
-// 初始化动画
-const drawCanvas = () => {
-  const ctx = canvas.value?.getContext("2d");
-  if (!ctx) return;
-
-  // 设置画布背景
-  ctx.fillStyle = "#ffcc99";
-  ctx.fillRect(0, 0, canvas.value?.width ?? 0, canvas.value?.height ?? 0);
-
-  // 动态显示文字
-  ctx.font = "30px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("欢迎", canvas.value?.width ?? 0 / 2, canvas.value?.height ?? 0 / 2);
-
-  // 向中间滑入的效果
-  let offsetX = -canvas.value.width;
-  const animationDuration = 5000; // 动画持续5秒
-  let startTime = Date.now();
-  const animate = () => {
-    const elapsed = Date.now() - startTime;
-    if (elapsed < animationDuration) {
-      offsetX = Math.max(-canvas.value.width, (elapsed / animationDuration) * canvas.value.width - canvas.value.width);
-      requestAnimationFrame(animate);
-    } else {
-      // 动画完成后文字居中显示
-      offsetX = 0;
-      messageVisible.value = true;
-      setTimeout(() => {
-        // 5秒后移出
-        messageVisible.value = false;
-        offsetX = -canvas.value.width;
-        startTime = Date.now();
-        requestAnimationFrame(animate);
-      }, 5000); // 延迟5秒后开始移出
-    }
-
-    // 重绘
-    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
-
-    // 绘制文字
-    ctx.font = "30px Arial";
-    ctx.fillStyle = "ffcc99";
-    ctx.textAlign = "center";
-    ctx.fillText(
-      "欢迎 " + userName.value + " 小朋友",
-      (canvas.value.width / 2) + offsetX,
-      canvas.value.height / 2
-    );
-  };
-  animate();
-};
-
 // 在组件挂载时开始绘制动画
 onMounted(() => {
-  drawCanvas();
+  audio.loop = true;
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  theme.value = savedTheme;
+  document.body.classList.toggle('dark-theme', savedTheme === 'dark');
 });
 
 //add get all ages of the user api
 
+/*tootle theme*/
+const theme = ref('light');
+const toggleTheme = () => {
+  theme.value = theme.value === 'light' ? 'dark' : 'light';
+  document.body.classList.toggle('dark-theme', theme.value === 'dark');
+};
 </script>
 
 <template>
@@ -131,17 +78,25 @@ onMounted(() => {
       <SideBar :menuOptions="menuOptions" @select-option="handleSelectOption" />
     </aside>
     <main style="width:100%; overflow-y: auto; padding: 2rem;">
+      <n-switch class="theme-switcher" @click="toggleTheme" size="small" v-model:value="active">
+        <template #icon>
+          🤔
+        </template>
+      </n-switch>
+      
       <div class="music-player" @click="toggleMusic">
         <div :class="['circle', { spinning: isPlaying }]"></div>
       </div>
-      <!-- <div id="canvas-container" ref="canvasContainer">
-        <canvas ref="canvas" width="600" height="400"></canvas>
-      </div> -->
       <RouterView />
     </main>
   </div>
 </template>
 <style>
+.dark-theme {
+  background-color: var(--vt-c-black);
+  color: var(--vt-c-text-dark-2);
+}
+
 .content {
   display: flex;
   width: 100%;
@@ -149,7 +104,7 @@ onMounted(() => {
 }
 .music-player {
   position: absolute;
-  top: 1rem;
+  top: 3rem;
   right: 1rem;
   width: 60px;
   height: 60px;
