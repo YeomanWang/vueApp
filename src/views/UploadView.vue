@@ -38,13 +38,20 @@ import { ref } from 'vue';
 import { NForm, NFormItem, NInputNumber, NUpload, NButton, useMessage } from 'naive-ui';
 import type { UploadFileInfo } from 'naive-ui';
 import axios from 'axios';
-const form = ref({
+
+interface Form {
+  name: string;
+  age: number | null;
+  file: UploadFileInfo[];
+}
+
+const form = ref<Form>({
   name: '',
   age: null,
   file: [],
 });
 
-const fileList = ref<File[]>([]);
+const fileList = ref<File[] | UploadFileInfo[]>([]);
 
 const rules = {
   name: {
@@ -56,7 +63,7 @@ const rules = {
     required: true,
     message: '年龄不能为空',
     trigger: 'blur',
-    type: 'number',
+    type: 'number' as const,
   },
   file: {
     validator: (_: unknown, value: File[]) => {
@@ -72,8 +79,8 @@ const rules = {
 const message = useMessage();
 const formRef = ref();
 
-const beforeUpload = (file: File) => {
-  const isValidType = ['image/jpeg', 'image/jpg', 'image/png'].includes(file.file.type);
+const beforeUpload = ({ file }: { file: Required<UploadFileInfo> }) => {
+  const isValidType = file.type && ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type);
   if (!isValidType) {
     message.error('只能上传 JPG 或 PNG 文件!');
     return false;
@@ -81,38 +88,9 @@ const beforeUpload = (file: File) => {
   return true;
 };
 
-const handleChange = (files: File[]) => {
+const handleChange = (files: {file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event} ) => {
   fileList.value = files.fileList;
-  form.value.file = files;
-
-  // const chunks = createFileChunks(files[0]);
-  // const worker = new Worker("./worker.js");
-  // worker.postMessage({
-  //   fileChunks: chunks,
-  //   fileName: files[0].name,
-  //   uploadUrl: "/upload-chunk", // 上传接口地址
-  // });
-
-  // let uploadedChunks = 0;
-
-  // worker.onmessage = (event) => {
-  //   const { index, success, complete, error } = event.data;
-
-  //   if (success) {
-  //     uploadedChunks++;
-  //     const percent = Math.round((uploadedChunks / chunks.length) * 100);
-  //     console.log(percent);
-  //     // progress.textContent = `Uploaded: ${percent}%`;
-  //   } else if (error) {
-  //     console.error(`Chunk ${index} upload failed: ${error}`);
-  //     worker.terminate();
-  //   }
-
-  //   if (complete) {
-  //     alert("Upload complete!");
-  //     worker.terminate();
-  //   }
-  // };
+  form.value.file = files.fileList;
 };
 
  
@@ -124,19 +102,6 @@ const handleRemove = ({ file }: { file: Required<UploadFileInfo> }) => {
   }
 };
 
-// function createFileChunks(file: File, chunkSize = 2 * 1024 * 1024) { // 默认每片2MB
-//   const chunks = [];
-//   let start = 0;
-
-//   while (start < file.size) {
-//     const end = Math.min(file.size, start + chunkSize);
-//     chunks.push(file.slice(start, end));
-//     start = end;
-//   }
-
-//   return chunks;
-// }
-
 const handleSubmit = () => {
   formRef.value
     .validate()
@@ -144,7 +109,7 @@ const handleSubmit = () => {
       message.success('表单验证通过，提交成功！');
       uploadPhoto();
     })
-    .catch((errors) => {
+    .catch((errors: string) => {
       console.error('表单验证失败：', errors);
       message.error('请正确填写表单');
     });
@@ -152,8 +117,8 @@ const handleSubmit = () => {
 
 const uploadPhoto = async () => {
   const formData = new FormData();
-  formData.append('age', form.value.age.toString());
-  formData.append('userId', localStorage.getItem('userId'));
+  formData.append('age', form.value.age !== null ? form.value.age.toString() : '');
+  formData.append('userId', localStorage.getItem('userId')?.toString() || '');
   // formData.append('photos', form.value.file);
   form.value.file.forEach((file) => {
     formData.append(`photos`, file.file as File);

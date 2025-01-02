@@ -1,7 +1,7 @@
 <template>
     <div class="carousel-wrapper">
       <div v-for="(photoGroup, groupIndex) in groupedPhotos" :key="groupIndex" class="carousel">
-        <div class="carousel-container" :style="{ transform: `rotateY(${angles[groupIndex]}deg)` }">
+        <div class="carousel-container" :style="{ transform: `rotateY(${angles?.[groupIndex] ?? 0}deg)` }">
           <div
             v-for="(photo, index) in photoGroup"
             :key="index"

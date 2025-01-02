@@ -52,8 +52,8 @@ export default defineComponent({
         } else {
           message.error(response.data.message);
         }
-      } catch (error) {
-        message.error(error);
+      } catch (error: unknown) {
+        message.error(String(error));
       }
     }
 
