@@ -3,10 +3,15 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { initTokenTimer, clearTokenTimer } from '../utils/tokenHandle';
 
+type User = {
+  id: number;
+  name: string;
+  email: string;
 
+}
 export const useUserStore = defineStore('user', {
   state: () => ({
-    user: null,
+    user: null as User | null,
     token: null as string | null,
     refreshToken: '',
   }),

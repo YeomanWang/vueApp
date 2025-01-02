@@ -14,11 +14,13 @@
 <script setup lang="ts">
   import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount, defineExpose} from 'vue';
   const props = defineProps({
-    photos: Array as () => string[],
+    photos: {
+      type: Array as () => string[],
+      default: () => []
+    },
   });
 
   const emit = defineEmits(['click-photo', 'load-more']);
-
   const loading = ref(false);
   const noMore = ref(false);
   const photos = ref([...props.photos]); // 本地存储照片数据

@@ -18,7 +18,7 @@
 
     <!-- 图片放大模态框 -->
     <div v-show="selectedPhoto" class="modal" @click="closeModal">
-      <img class="modal-image" :src="selectedPhoto" alt="Enlarged Photo" />
+      <img class="modal-image" :src="selectedPhoto || ''" alt="Enlarged Photo" />
     </div>
   </div>
 </template>
@@ -29,8 +29,12 @@ import { NButton, NButtonGroup } from 'naive-ui';
 import MasonryGallery from './components/MasonryGallery.vue';
 import ThreeDCarousel from './components/ThreeDCarousel.vue';
 import apiClient from '../../service';
+interface Photo {
+  age: string;
+  photo: string;
+}
 const currentMode = ref('masonry'); // 当前展示模式
-const photos = ref([]);
+const photos = ref<string[]>([]);
 const selectedPhoto = ref<string | null>(null);
 const masonryGallery = ref();
 const age = ref(0);
@@ -40,11 +44,11 @@ const handlePhotoClick = (photo: string) => {
   selectedPhoto.value = photo;
 };
 
-const fetchPhotos = async(resolve) => {
+const fetchPhotos = async (resolve: (value: Photo[]) => void) => {
   try {
-    const response = await apiClient.get(`/photos/${localStorage.getItem('userId')}/${age.value}?page=${currentPage}&limit=10`); 
-    response.data.map(({photo}) => {
-      photos.value.push(photo);
+    const response = await apiClient.get(`/photos/${localStorage.getItem('userId')}/${age.value}?page=${currentPage}&limit=5`); 
+    response.data.map((item: Photo) => {
+      photos.value.push(item.photo);
     });
     resolve(response.data);
     currentPage++;
@@ -54,11 +58,11 @@ const fetchPhotos = async(resolve) => {
 }
 
 const handleLoadMorePhotos = () => {
-  return new Promise<string[]>((resolve) => {
+  return new Promise<Photo[]>((resolve) => {
     fetchPhotos(resolve);
   }).then((response) => {
     if (masonryGallery.value) {
-      masonryGallery.value.updatePhotos(response.map(({photo}) => {return photo}));
+      masonryGallery.value.updatePhotos(response.map((item) => {return item.photo}));
     }
   });
 }
