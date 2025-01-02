@@ -69,6 +69,7 @@ const theme = ref('light');
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
   document.body.classList.toggle('dark-theme', theme.value === 'dark');
+  document.body.classList.toggle('light-theme', theme.value === 'light');
 };
 </script>
 
@@ -95,6 +96,11 @@ const toggleTheme = () => {
 .dark-theme {
   background-color: var(--vt-c-black);
   color: var(--vt-c-text-dark-2);
+}
+
+.light-theme {
+  background-color: var(--vt-c-white);
+  color: var(--vt-c-text-light-1);
 }
 
 .content {

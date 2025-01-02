@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { clearTokenTimer } from '../utils/tokenHandle';
+import { initTokenTimer, clearTokenTimer } from '../utils/tokenHandle';
+
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -15,6 +16,9 @@ export const useUserStore = defineStore('user', {
       this.user = user;
       this.token = token;
       this.refreshToken = refreshToken;
+      if (this.token) {
+        initTokenTimer(this.token);
+      }
 
       localStorage.setItem('userId', user.id);
       localStorage.setItem('auth_token', token);

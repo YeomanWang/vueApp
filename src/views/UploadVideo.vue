@@ -1,103 +1,158 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
-import type { CancelTokenSource } from 'axios';
 import type { UploadFileInfo } from 'naive-ui';
 
 const file = ref<File | null>(null);
-const chunkSize = 0.01 * 1024 * 1024; // 0.1MB
+const chunkSize = 10 * 1024 * 1024; // 10MB
 const currentChunk = ref(0);
 const totalChunks = ref(0);
 const uploading = ref(false);
 const paused = ref(false);
 const progress = ref(0);
 const currentVideoId = ref('');
-let cancelTokenSource: CancelTokenSource | null = null;
+let worker: Worker | null = null;
 type customFile = { file: UploadFileInfo, fileList: Array<UploadFileInfo>, event?: Event };
 const handleFileChange = (customFile: customFile) => {
   if (customFile.file.file) {
-    // file.value = customFile.file.file;
-    // totalChunks.value = Math.ceil(file.value.size / chunkSize);
-    // uploading.value = true;
-    // uploadChunk();
     const newFile = customFile.file.file;
-    const videoId = newFile.name; // 假设文件名作为 videoId
-
+    const videoId = newFile.name;
     // 判断当前是否有相同的视频正在上传
     if (uploading.value && currentVideoId.value === videoId) {
       alert('This file is already uploading!');
       return;
     }
-
-    // 更新当前上传的视频 ID
     currentVideoId.value = videoId;
-
     // 初始化上传状态
     file.value = newFile;
     totalChunks.value = Math.ceil(file.value.size / chunkSize);
     uploading.value = true;
     currentChunk.value = 0;
     progress.value = 0;
-    uploadChunk();
+    createWorker();
   }
-
 };
 
-const uploadChunk = async () => {
-  if (paused.value || !uploading.value || !file.value) return;
+const createWorker = () => {
+  const workerScript = `
+    let command, file, chunkSize, currentChunk, totalChunks, uploadUrl, userId, paused, uploading, xhr;
+    let lastUpdateTime = 0;
+    const updateInterval = 2000;
+    self.onmessage = async (e) => {
+      console.log('Worker received message:', e.data);
+      command = e.data.command;
+      paused = e.data.paused;
+      if(e.data.currentChunk !== undefined) {
+        ({ file, chunkSize, currentChunk, totalChunks, uploadUrl, userId, uploading} = e.data);
+      }
 
-  const start = currentChunk.value * chunkSize;
-  const end = Math.min(start + chunkSize, file.value.size);
-  const chunk = file.value.slice(start, end);
+      if(command === 'upload') {
+        uploadChunks();
+      } else if (command === 'pause') {
+        paused = true;
+        xhr.abort();
+      } else if (command === 'resume') {
+        paused = false;
+        uploadChunks();
+      } else if (command === 'cancel') {
+        paused = false;
+        uploading = false;
+        currentChunk = 0;
+        totalChunks = 0;
+        file = null;
+        xhr.abort();
+      }
+    };
 
-  const formData = new FormData();
-  formData.append('chunk', chunk, file.value.name);
-  formData.append('userId', localStorage.getItem('userId') || '');
-  formData.append('videoId', file.value.name);
-  formData.append('chunkIndex', currentChunk.value.toString());
-  formData.append('totalChunks', totalChunks.value.toString());
+    const uploadChunks = () => {
+      if (paused || !uploading || !file) return true;
+      const start = currentChunk * chunkSize;
+      const end = Math.min(start + chunkSize, file.size);
+      const chunk = file.slice(start, end);
+      const formData = new FormData();
+      formData.append('chunk', chunk, file.name);
+      formData.append('userId', userId || '');
+      formData.append('videoId', file.name);
+      formData.append('chunkIndex', currentChunk.toString());
+      formData.append('totalChunks', totalChunks.toString());
 
-  cancelTokenSource = axios.CancelToken.source();
+      xhr = new XMLHttpRequest();
+      xhr.open('POST', uploadUrl, true);
+      // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
 
-  try {
-    const response = await axios.post('api/videos/upload', formData, {
-      cancelToken: cancelTokenSource.token,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+      xhr.onload = function () {
+        if (xhr.status === 200 || xhr.status === 201) {
+          const currentTime = Date.now();
+          currentChunk++;
+          const progress = Math.floor((currentChunk / totalChunks) * 100);
+          if (currentChunk < totalChunks) {
+            console.log('111111', currentChunk, totalChunks);
+            uploadChunks();
+            if (currentTime - lastUpdateTime >= updateInterval) {
+              self.postMessage({ success: true, message: 'Upload in progress', progress});
+              lastUpdateTime = currentTime;
+            }
+          } else {
+            if (currentChunk && totalChunks) {
+              console.log('2222222', currentChunk, totalChunks);
+              uploading = false;
+              self.postMessage({ success: true, message: 'Upload complete', progress});
+            }
+          }
+        } else {
+          uploading = false;
+          self.postMessage({ success: false, message: 'Upload failed' });
+        }
+      };
 
-    if (response.status === 200 || response.status === 201) {
-      currentChunk.value++;
-      progress.value = Math.floor((currentChunk.value / totalChunks.value) * 100);
-      if (currentChunk.value < totalChunks.value) {
-        uploadChunk();
-      } else {
+      xhr.onerror = function () {
+        uploading = false;
+        self.postMessage({ success: false, message: 'Upload failed' });
+      };
+
+      xhr.send(formData);
+    }
+  `;
+
+  const blob = new Blob([workerScript], { type: 'application/javascript' });
+  worker = new Worker(URL.createObjectURL(blob));
+  worker?.postMessage({
+    command: 'upload',
+    file: file.value,
+    chunkSize,
+    currentChunk: currentChunk.value,
+    totalChunks: totalChunks.value,
+    uploadUrl: 'http://127.0.0.1:3000/api/videos/upload',
+    userId: localStorage.getItem('userId') || '',
+    uploading: uploading.value,
+    paused: paused.value,
+  });
+  worker.onmessage = (e) => {
+    if (e.data.success) {
+      if(e.data.message === 'Upload complete') {
         uploading.value = false;
         alert('Upload complete');
+        cleanupWorker();
       }
-    } else {
-      alert('Upload failed');
+      progress.value = e.data.progress;
     }
-  } catch (error) {
-    if (axios.isCancel(error)) {
-      console.log(error.message);
-    } else {
-      alert('Upload failed');
-    }
-  }
+  };
+}
+
+const cleanupWorker = () => {
+  worker?.terminate();
+  worker = null;
 };
+
 
 const pauseUpload = () => {
   paused.value = true;
-  if (cancelTokenSource) {
-    cancelTokenSource.cancel('Upload paused');
-  }
+  worker?.postMessage({ command: 'pause', paused: paused.value});
+  alert('Upload paused');
 };
 
 const resumeUpload = () => {
   paused.value = false;
-  uploadChunk();
+  worker?.postMessage({ command: 'resume', paused: paused.value});
 };
 
 const cancelUpload = () => {
@@ -105,9 +160,16 @@ const cancelUpload = () => {
   paused.value = false;
   currentChunk.value = 0;
   progress.value = 0;
-  if (cancelTokenSource) {
-    cancelTokenSource.cancel('Upload canceled');
-  }
+  alert('Upload Canceled');
+  worker?.postMessage(
+    { 
+      command: 'cancel', 
+      paused: paused.value, 
+      uploading: uploading.value , 
+      currentChunk: currentChunk.value, 
+      progress: progress.value
+    });
+  cleanupWorker();
 };
 </script>
 
