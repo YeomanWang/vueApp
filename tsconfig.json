@@ -15,7 +15,7 @@
       "@/*": ["src/*"]
     },
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true
   }
 }

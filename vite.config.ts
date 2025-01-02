@@ -3,11 +3,18 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    Components({
+      resolvers: [
+        ElementPlusResolver(),
+      ]
+    }),
     vueDevTools(),
   ],
   resolve: {
@@ -37,6 +44,13 @@ export default defineConfig({
       },
       build: {
         rollupOptions: {
+          output: {
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                return id.toString().split('node_modules/')[1].split('/')[0].toString();
+              }
+            }
+          },
           external: [],
         },
         terserOptions: {
@@ -45,6 +59,7 @@ export default defineConfig({
             unused: true, // 删除没有用到的代码
           },
         },
+        chunkSizeWarningLimit: 500,
       },
       worker: {
         format: 'es', // 确保 worker 支持 ES 模块

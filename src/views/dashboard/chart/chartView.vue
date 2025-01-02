@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
 import { useTemplateRef , onMounted } from 'vue'
-import { chartData } from './chart/chartData'
+import { chartData } from './chartData'
 type EChartsOption = echarts.EChartsOption
 const input = useTemplateRef('my-chart')
 let option: EChartsOption = {}
