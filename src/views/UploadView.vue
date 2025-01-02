@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { NForm, NFormItem, NInputNumber, NUpload, NButton, useMessage } from 'naive-ui';
+import type { UploadFileInfo } from 'naive-ui';
 import axios from 'axios';
 const form = ref({
   name: '',
@@ -58,7 +59,7 @@ const rules = {
     type: 'number',
   },
   file: {
-    validator: (_, value) => {
+    validator: (_: unknown, value: File[]) => {
       if (Array.isArray(value) && value.length > 0) {
         return Promise.resolve();
       }
@@ -115,7 +116,7 @@ const handleChange = (files: File[]) => {
 };
 
  
-const handleRemove = (file: File) => {
+const handleRemove = ({ file }: { file: Required<UploadFileInfo> }) => {
   const index = fileList.value.findIndex(item => item.id === file.id); 
   if (index > -1) {
     fileList.value.splice(index, 1); // 从 fileList 中移除该文件

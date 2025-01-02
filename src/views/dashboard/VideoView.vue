@@ -1,16 +1,26 @@
 <script setup lang="ts">
-import { ref, onMounted, watch} from 'vue';
+import { ref, onMounted, nextTick, type ComponentPublicInstance} from 'vue';
 import apiClient from '../../service';
 
 // 视频元素
-const myVideo = ref<HTMLVideoElement | null>(null);
-const videoUrl = ref('');
-// 进度与状态
-const currentTime = ref(0);
-const duration = ref(0);
-const volume = ref(1);
-const playbackRate = ref(1);
-const isPlaying = ref(false);
+const videoRefs = ref<(HTMLVideoElement | null)[]>([]);
+
+
+const setVideoRef = (el: Element | ComponentPublicInstance | null, index: number) => {
+  videoRefs.value[index] = el as HTMLVideoElement | null;
+};
+const volume = ref<Record<number, number>>({})
+const playbackRate = ref<Record<number, number>>({});
+const isPlaying = ref<Record<number, boolean>>({});
+const currentTime = ref<Record<number, number>>({});
+const duration = ref<Record<number, number>>({});
+interface Video {
+  id: number;
+  videoPath: string;
+  // Add other properties as needed
+}
+
+const videoList = ref<Video[]>([]);
 // 控制栏状态
 const isControlBarVisible = ref(false);
 let hideControlBarTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -32,94 +42,99 @@ const hideControlBar = () => {
 };
 
 // 视频事件监听
-onMounted(() => {
-  if (myVideo.value) {
-    fetchVideos();
-    const video = myVideo.value;
-    
-    // 更新进度
-    video.addEventListener('timeupdate', () => {
-      currentTime.value = video.currentTime;
-      duration.value = video.duration;
+onMounted(async() => {
+  await fetchVideos();
+
+  nextTick(() => {
+    videoRefs.value.forEach((video, index) => {
+      if (video) {
+        video.addEventListener('timeupdate', () => {
+          currentTime.value[index] = video.currentTime;
+          duration.value[index] = video.duration;
+        });
+        isPlaying.value[index] = false;
+        playbackRate.value[index] = 1;
+        // video.addEventListener('play', () => (isPlaying.value[index] = true));
+        // video.addEventListener('pause', () => (isPlaying.value[index] = false));
+      }
     });
-    
-    // 检测播放状态
-    video.addEventListener('play', () => (isPlaying.value = true));
-    video.addEventListener('pause', () => (isPlaying.value = false));
-  }
+  });
+
 });
 
 const fetchVideos = async() => {
   try {
     const response = await apiClient.get(`/videos/${localStorage.getItem('userId')}`); 
-    response.data.map((video) => {
-      videoUrl.value = `http://localhost:3000/${video.videoPath}`;
+    response.data.map((video: Video) => {
+      videoList.value.push(video);
     });
   } catch (error) {
     console.error('获取照片失败:', error);
   }
 }
 
-watch(videoUrl, (newUrl) => {
-  if (myVideo.value) {
-    myVideo.value.src = newUrl;
-  }
-});
-
 // 播放与暂停
-const togglePlay = () => {
-  if (myVideo.value) {
-    if (isPlaying.value) {
-      myVideo.value.pause();
+const togglePlay = (index:number) => {
+  const video = videoRefs.value[index];
+  if (video) {
+    if (isPlaying.value[index]) {
+      video.pause();
+      isPlaying.value[index] = false;
     } else {
-      myVideo.value.play();
+      video.play();
+      isPlaying.value[index] = true;
     }
   }
 };
 
 // 快进/快退
-const seek = (seconds: number) => {
-  if (myVideo.value) {
-    myVideo.value.currentTime += seconds;
+const seek = (index:number, seconds: number) => {
+  const video = videoRefs.value[index];
+  if (video) {
+    video.currentTime += seconds;
   }
 };
 
 // 调节音量
-const setVolume = (value: number) => {
-  if (myVideo.value) {
-    volume.value = value;
-    myVideo.value.volume = value;
+const setVolume = (index:number, value: number) => {
+  const video = videoRefs.value[index];
+  if (video) {
+    volume.value[index] = value;
+    video.volume = value;
   }
 };
 
 // 设置倍速
-const setPlaybackRate = (rate: number) => {
-  if (myVideo.value) {
-    playbackRate.value = rate;
-    myVideo.value.playbackRate = rate;
+const setPlaybackRate = (index:number, rate: number) => {
+  const video = videoRefs.value[index];
+  if (video) {
+    playbackRate.value[index] = rate;
+    video.playbackRate = rate;
   }
 };
 
 // 跳转到指定时间
-const seekTo = (time: number) => {
-  if (myVideo.value) {
-    myVideo.value.currentTime = time;
+const seekTo = (index:number, time: number) => {
+  const video = videoRefs.value[index];
+  if (video) {
+    video.currentTime = time;
   }
 };
+
 </script>
 <template>
-  <div id="video-container" @mousemove="showControlBar" @mouseleave="hideControlBar">
+  <div id="video-container" :key="item.id" v-for="(item, index) in videoList" @mousemove="showControlBar" @mouseleave="hideControlBar">
     <!-- 视频播放器 -->
-    <video ref="myVideo" width="600" height="400"></video>
+    <video :ref="(el) => setVideoRef(el, index)" width="600" height="400" :src="`http://localhost:3000/${item.videoPath}`"></video>
 
     <!-- 自定义控制栏 -->
     <div id="control-bar" :class="{ 'show': isControlBarVisible }">
       <!-- 播放/暂停 -->
-      <button @click="togglePlay">{{ isPlaying ? '暂停' : '播放' }}</button>
+      <button @click="togglePlay(index)">{{ isPlaying[index] ? '暂停' : '播放' }}</button>
 
       <!-- 快进/快退 -->
-      <button @click="seek(-10)">⏪ 后退 10 秒</button>
-      <button @click="seek(10)">⏩ 快进 10 秒</button>
+      <button @click="seek(index, -10)">⏪ 后退 10 秒</button>
+      <button @click="seek(index, 10)">⏩ 快进 10 秒</button>
 
       <!-- 音量调节 -->
       <input
@@ -127,12 +142,12 @@ const seekTo = (time: number) => {
         min="0"
         max="1"
         step="0.1"
-        v-model="volume"
-        @input="setVolume(volume)"
+        v-model="volume[index]"
+        @input="setVolume(index, volume[index])"
       />
 
       <!-- 倍速播放 -->
-      <select v-model="playbackRate" @change="setPlaybackRate(playbackRate)">
+      <select v-model="playbackRate[index]" @change="setPlaybackRate(index, playbackRate[index])">
         <option value="0.5">0.5x</option>
         <option value="1">1x</option>
         <option value="1.5">1.5x</option>
@@ -144,12 +159,12 @@ const seekTo = (time: number) => {
         <input
           type="range"
           min="0"
-          :max="duration"
+          :max="duration[index] || 0"
           step="0.1"
-          v-model="currentTime"
-          @input="seekTo(currentTime)"
+          v-model="currentTime[index]"
+          @input="seekTo(index, currentTime[index])"
         />
-        <span>{{ currentTime.toFixed(1) }} / {{ duration.toFixed(1) }}</span>
+        <span>{{ currentTime[index]?.toFixed(1) || 0 }} / {{ duration[index]?.toFixed(1) || 0}}</span>
       </div>
     </div>
   </div>

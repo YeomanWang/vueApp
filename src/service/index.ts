@@ -28,6 +28,7 @@ apiClient.interceptors.response.use(
     const userStore = useUserStore();
     if (error.response && error.response.status === 401) {
       // 检查是否可以刷新 Token
+      console.log(userStore.refreshToken);
       if (userStore.refreshToken) {
         try {
           await userStore.refreshAccessToken();

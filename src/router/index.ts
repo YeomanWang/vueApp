@@ -8,13 +8,13 @@ const router = createRouter({
     {
       path: '/',
       name: 'layout',  // 修改为新的组件名
-      component: import('../views/LayoutView.vue'),
+      component: () => import('../views/LayoutView.vue'),
       meta: { requiresAuth: true },
       children: [
         {
           path: '/dashboard',
           name: 'dashboard',
-          component: import('../views/dashboard/HomeView.vue'),
+          component: () => import('../views/dashboard/HomeView.vue'),
           meta: { requiresAuth: true },
           children: [
             {
@@ -54,7 +54,7 @@ const router = createRouter({
         {
           path: '/upload',
           name: 'upload',
-          component: import('../views/UploadView.vue'),
+          component: () => import('../views/UploadView.vue'),
           meta: { requiresAuth: true },
         },
       ]
