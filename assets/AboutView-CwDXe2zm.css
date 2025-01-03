@@ -1,0 +1,1 @@
+.about{min-height:100vh;text-align:center;background-color:#000;color:#999}.about .audio{width:500px;margin:10px 0}.about .container{height:420px;overflow:hidden}.about ul li{list-style:none;transition:transform 1s}.about .active{color:#fff;transform:scale(1.5)}
