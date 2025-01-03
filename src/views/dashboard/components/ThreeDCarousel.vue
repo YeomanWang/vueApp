@@ -7,9 +7,9 @@
             :key="index"
             class="carousel-item"
             :style="{ transform: `rotateY(${index * 360 / photoGroup.length}deg) translateZ(300px)` }"
-            @click="emitClick(`http://localhost:3000${photo}`)"
+            @click="emitClick(`${apiUrl}${photo}`)"
           >
-            <img :src="`http://localhost:3000${photo}`" alt="Photo" />
+            <img :src="`${apiUrl}${photo}`" alt="Photo" />
           </div>
         </div>
         <div class="controls">
@@ -22,6 +22,7 @@
   
   <script setup lang="ts">
   import { ref, computed, defineProps, defineEmits, watch} from 'vue';
+  import apiUrl from '@/config'; 
   
   const props = defineProps({
     photos: Array as () => string[], // 图片数组

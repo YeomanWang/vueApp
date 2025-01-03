@@ -5,9 +5,16 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const apiUrl = process.env.NODE_ENV === 'development'
+  ? process.env.VITE_API_URL_DEVELOPMENT
+  : process.env.VITE_API_URL_PRODUCTION;
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/vueApp/',
   plugins: [
     vue(),
     Components({
@@ -26,7 +33,7 @@ export default defineConfig({
     port: 3006,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3000', // 后端地址
+        target: apiUrl, // 后端地址
         changeOrigin: true,
         secure: false
       },
@@ -40,7 +47,7 @@ export default defineConfig({
         '.ts': 'ts',
         '.tsx': 'tsx'
       }
-        }
+    }
       },
       build: {
         rollupOptions: {
@@ -63,5 +70,5 @@ export default defineConfig({
       },
       worker: {
         format: 'es', // 确保 worker 支持 ES 模块
-  },
+      },
 })

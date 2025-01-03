@@ -1,8 +1,8 @@
 <template>
   <div class="masonry-container">
     <div class="masonry">
-      <div class="masonry-item" v-for="(photo, index) in visiblePhotos" :key="index" @click="emitClick(`http://localhost:3000${photo}`)">
-        <img :src="`http://localhost:3000${photo}`" alt="Photo" />
+      <div class="masonry-item" v-for="(photo, index) in visiblePhotos" :key="index" @click="emitClick(`${apiUrl}${photo}`)">
+        <img :src="`${apiUrl}${photo}`" alt="Photo" />
       </div>
     </div>
     <div class="loading" v-if="loading">加载中...</div>
@@ -13,6 +13,7 @@
   
 <script setup lang="ts">
   import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount, defineExpose} from 'vue';
+  import apiUrl from '@/config'; 
   const props = defineProps({
     photos: {
       type: Array as () => string[],

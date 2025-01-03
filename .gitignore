@@ -1,5 +1,7 @@
 /node_modules
 /dist
+/.env
+/vite-env.d.ts
 **.mp4
 /assets/*.jpg
 /assets/*.mp3

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, type ComponentPublicInstance} from 'vue';
 import apiClient from '../../service';
+import apiUrl from '@/config'; 
 
 // 视频元素
 const videoRefs = ref<(HTMLVideoElement | null)[]>([]);
@@ -125,7 +126,7 @@ const seekTo = (index:number, time: number) => {
 <template>
   <div id="video-container" :key="item.id" v-for="(item, index) in videoList" @mousemove="showControlBar" @mouseleave="hideControlBar">
     <!-- 视频播放器 -->
-    <video :ref="(el) => setVideoRef(el, index)" width="600" height="400" :src="`http://localhost:3000/${item.videoPath}`"></video>
+    <video :ref="(el) => setVideoRef(el, index)" width="600" height="400" :src="`${apiUrl}/${item.videoPath}`"></video>
 
     <!-- 自定义控制栏 -->
     <div id="control-bar" :class="{ 'show': isControlBarVisible }">
