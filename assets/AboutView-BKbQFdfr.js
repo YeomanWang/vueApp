@@ -1,4 +1,4 @@
-import{a as k}from"./music-Blh7dhMV.js";import{d as y,r as i,e as b,c as u,b as p,P as x,F as C,S as T,a7 as E,o as c,a6 as S,a5 as w}from"./@vue-BY7EiYrW.js";const A=`[00:01.06]难念的经
+import{a as k}from"./music-CWJAk7_7.js";import{d as y,r as i,e as b,c as u,b as p,P as x,F as C,S as T,a7 as E,o as c,a6 as S,a5 as w}from"./@vue-BY7EiYrW.js";const A=`[00:01.06]难念的经
 [00:03.95]演唱：周华健
 [00:06.78]
 [00:30.96]笑你我枉花光心计
