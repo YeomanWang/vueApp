@@ -1,9 +1,10 @@
 import { useUserStore } from '@/stores/user';
 import axios from 'axios';
+import apiUrl from '@/config'; 
 
 // 创建 Axios 实例
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: `${apiUrl}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

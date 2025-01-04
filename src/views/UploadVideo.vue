@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
+import apiUrl from '@/config'; 
 
 const file = ref<File | null>(null);
 const chunkSize = 10 * 1024 * 1024; // 10MB
@@ -121,7 +122,7 @@ const createWorker = () => {
     chunkSize,
     currentChunk: currentChunk.value,
     totalChunks: totalChunks.value,
-    uploadUrl: 'http://127.0.0.1:3000/api/videos/upload',
+    uploadUrl: `${apiUrl}/api/videos/upload`,
     userId: localStorage.getItem('userId') || '',
     uploading: uploading.value,
     paused: paused.value,
